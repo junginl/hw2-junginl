@@ -9,9 +9,13 @@ import java.util.TreeSet;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.tutorial.RoomNumber;
+import org.apache.uima.cas.FSIndex;
 
 import java.io.IOException;
 
+import edu.cmu.deiis.types.Answer;
+import edu.cmu.deiis.types.AnswerScore;
 import edu.stanford.nlp.dcoref.CorefChain;
 import edu.stanford.nlp.dcoref.CorefCoreAnnotations.CorefChainAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
@@ -40,30 +44,26 @@ public class AnswerScoreAnnotator extends JCasAnnotator_ImplBase {
   /**
    * Compare each answer candidates with the question, and return the scores and the precision value.
    * 
-   * @param args
-   * 
-   *          Having a question sentence and a set of answer candidates as input,
-   * 
-   *          analyzes each answer candidates (Stanford Core NLP- POS tagging, synonyms, passive voice, and negation).
    */
   
   @Override
   public void process(JCas arg0) throws AnalysisEngineProcessException {
     // TODO Auto-generated method stub
-    /**
-     * Get the document text (input).
-     */
+    //Get the document text (input).
     String docText = arg0.getDocumentText();
+    
+    AnswerScore annotation = new AnswerScore(arg0);
+    annotation.setBegin(0);
+    annotation.setEnd(1);
+    annotation.setCasProcessorId("AnswerScore");
 
-    /**
-     * Convert the input into arrays of strings, split by lines.
-     */
+    // get annotation indexes
+    FSIndex answerIndex = arg0.getAnnotationIndex(Answer.type);
+    
+    //Convert the input into arrays of strings, split by lines.
     String[] lines = docText.split("/n");
     
-
-    /**
-     * Rearrange so that the String arrays only contain texts (without Q, A, 0, 1).
-     */ 
+    //Rearrange so that the String arrays only contain texts (without Q, A, 0, 1).
     String[] textAll = new String[lines.length];
     textAll[0] = lines[0].substring(2);
     for (int i=1; i<lines.length; i++) {
@@ -104,10 +104,8 @@ public class AnswerScoreAnnotator extends JCasAnnotator_ImplBase {
       }
     }
 
-    
-    /**
-     * Analyze each answer candidates with regards to the Question.
-     */ 
+
+    // Analyze each answer candidates with regards to the Question. 
     //identifying Question's verb(VBD/VBZ, VBN), subject, object
     int indVQ = 0; 
     if (posAll.get(0).indexOf("VBD")!=(-1)) {
@@ -257,20 +255,18 @@ public class AnswerScoreAnnotator extends JCasAnnotator_ImplBase {
     }
     
     
-    /**
-     * Computing scores: 
-     *      Each sentence gets one point for getting each of the Subject, Verb, Object correct
-     *      and then the obtained score is divided to the total number of tokens of the question sentence (excluding punctuations).
-     */
+  
+     //Computing scores: 
+     //    Each sentence gets one point for getting each of the Subject, Verb, Object correct
+     //     and then the obtained score is divided to the total number of tokens of the question sentence (excluding punctuations).
     double[] scoresF = new double[scores.length];
     for (int i=0; i<scores.length; i++) {
       scoresF[i] = (double) (scores[i] / (tokenAll.get(0).size()-1)); 
     }
+//    annotation.setScore(scoresF[answerIndex]);
     
     
-    /**
-     * Computing precision: # of correct sentences / # sentences the system purports to be correct
-     */
+    //Computing precision: # of correct sentences / # sentences the system purports to be correct
     double precision = 0.0;
     int num = 0;
     int denom = 0;

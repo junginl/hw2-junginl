@@ -104,10 +104,8 @@ public class QnAScoringAnnotator extends JCasAnnotator_ImplBase {
       }
     }
 
-    
-    /**
-     * Analyze each answer candidates with regards to the Question.
-     */ 
+
+    // Analyze each answer candidates with regards to the Question. 
     //identifying Question's verb(VBD/VBZ, VBN), subject, object
     int indVQ = 0; 
     if (posAll.get(0).indexOf("VBD")!=(-1)) {

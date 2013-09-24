@@ -2,9 +2,9 @@
 
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
-  <primitive>true</primitive>  <annotatorImplementationName>edu.cmu.lti.hw2.annotators.QnAScoringAnnotator</annotatorImplementationName>
+  <primitive>true</primitive>  <annotatorImplementationName>edu.cmu.lti.hw2.annotators.QuestionAnnotator</annotatorImplementationName>
   <analysisEngineMetaData>
-    <name>QnA Scoring Annotator</name>
+    <name>Question Annotator</name>
     <description/>
     <version>1.0</version>
     <vendor/>
@@ -15,11 +15,14 @@
         <import name="descriptors.deiis_types"/>
       </imports>
     </typeSystemDescription>
+    <typePriorities/>
     <fsIndexCollection/>
     <capabilities>
       <capability>
         <inputs/>
-        <outputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">edu.cmu.deiis.types.Question</type>
+        </outputs>
         <languagesSupported/>
       </capability>
     </capabilities>
