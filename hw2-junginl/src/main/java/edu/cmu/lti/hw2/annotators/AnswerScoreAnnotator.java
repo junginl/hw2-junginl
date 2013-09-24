@@ -14,8 +14,8 @@ import org.apache.uima.cas.FSIndex;
 
 import java.io.IOException;
 
-import edu.cmu.deiis.types.Answer;
-import edu.cmu.deiis.types.AnswerScore;
+//import edu.cmu.deiis.types.Answer;
+//import edu.cmu.deiis.types.AnswerScore;
 import edu.stanford.nlp.dcoref.CorefChain;
 import edu.stanford.nlp.dcoref.CorefCoreAnnotations.CorefChainAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
@@ -52,13 +52,13 @@ public class AnswerScoreAnnotator extends JCasAnnotator_ImplBase {
     //Get the document text (input).
     String docText = arg0.getDocumentText();
     
-    AnswerScore annotation = new AnswerScore(arg0);
-    annotation.setBegin(0);
-    annotation.setEnd(1);
-    annotation.setCasProcessorId("AnswerScore");
+//    AnswerScore annotation = new AnswerScore(arg0);
+//    annotation.setBegin(0);
+//    annotation.setEnd(1);
+//    annotation.setCasProcessorId("AnswerScore");
 
     // get annotation indexes
-    FSIndex answerIndex = arg0.getAnnotationIndex(Answer.type);
+//    FSIndex answerIndex = arg0.getAnnotationIndex(Answer.type);
     
     //Convert the input into arrays of strings, split by lines.
     String[] lines = docText.split("/n");
@@ -253,7 +253,6 @@ public class AnswerScoreAnnotator extends JCasAnnotator_ImplBase {
         }
       }
     }
-    
     
   
      //Computing scores: 
