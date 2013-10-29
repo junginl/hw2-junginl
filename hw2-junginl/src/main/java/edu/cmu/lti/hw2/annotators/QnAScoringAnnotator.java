@@ -1,6 +1,7 @@
 package edu.cmu.lti.hw2.annotators;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -50,30 +51,20 @@ public class QnAScoringAnnotator extends JCasAnnotator_ImplBase {
   @Override
   public void process(JCas arg0) throws AnalysisEngineProcessException {
     // TODO Auto-generated method stub
-    /**
-     * Get the document text (input).
-     */
+    // Get the document text (input).
     String docText = arg0.getDocumentText();
 
-    /**
-     * Convert the input into arrays of strings, split by lines.
-     */
+    // Convert the input into arrays of strings, split by lines.
     String[] lines = docText.split("/n");
-    
 
-    /**
-     * Rearrange so that the String arrays only contain texts (without Q, A, 0, 1).
-     */ 
+    // Rearrange so that the String arrays only contain texts (without Q, A, 0, 1).
     String[] textAll = new String[lines.length];
     textAll[0] = lines[0].substring(2);
-    for (int i=1; i<lines.length; i++) {
+    for (int i = 1; i < lines.length; i++) {
       textAll[i] = lines[i].substring(4);
     }
-    
 
-    /**
-     * Use Stanford CoreNLP tool for POS tagging
-     */ 
+    // import Stanford CoreNLP tool for POS tagging
     ArrayList<ArrayList<String>> tokenAll = new ArrayList<ArrayList<String>>();
     ArrayList<ArrayList<String>> posAll = new ArrayList<ArrayList<String>>();
     for (int i = 0; i < textAll.length; i++) {
@@ -104,14 +95,11 @@ public class QnAScoringAnnotator extends JCasAnnotator_ImplBase {
       }
     }
 
-
-    // Analyze each answer candidates with regards to the Question. 
-    //identifying Question's verb(VBD/VBZ, VBN), subject, object
-    int indVQ = 0; 
-    if (posAll.get(0).indexOf("VBD")!=(-1)) {
+    // identifying Question's verb(VBD), subject, object
+    int indVQ = 0;
+    if (posAll.get(0).indexOf("VBD") != (-1)) {
       indVQ = posAll.get(0).indexOf("VBD");
-    }
-    else {
+    } else {
       indVQ = posAll.get(0).indexOf("VBZ");
     }
     int indSQ = posAll.get(0).indexOf("NNP");
@@ -121,35 +109,34 @@ public class QnAScoringAnnotator extends JCasAnnotator_ImplBase {
     String OQ = tokenAll.get(0).get(indOQ);
 
     // identifying answers' verbs(VBDs), subjects, objects
-    int[] indVA = new int[lines.length-1];
-    int[] indVPA = new int[lines.length-1];
-    String[] VA = new String[lines.length-1];
-    String[] VPA = new String[lines.length-1];
-    for (int i=0; i<lines.length-1; i++) {
-      if (posAll.get(i+1).indexOf("VBD")!=(-1)) {
-        indVA[i] = posAll.get(i+1).indexOf("VBD");
+    int[] indVA = new int[lines.length - 1];
+    int[] indVPA = new int[lines.length - 1];
+    String[] VA = new String[lines.length - 1];
+    String[] VPA = new String[lines.length - 1];
+    for (int i = 0; i < lines.length - 1; i++) {
+      if (posAll.get(i + 1).indexOf("VBD") != (-1)) {
+        indVA[i] = posAll.get(i + 1).indexOf("VBD");
+      } else {
+        indVA[i] = posAll.get(i + 1).indexOf("VBZ");
       }
-      else {
-        indVA[i] = posAll.get(i+1).indexOf("VBZ");
-      }
-      VA[i] = tokenAll.get(i+1).get(indVA[i]);
-      int x = posAll.get(i+1).indexOf("VBN");
-      if (x != -1){
+      VA[i] = tokenAll.get(i + 1).get(indVA[i]);
+      int x = posAll.get(i + 1).indexOf("VBN");
+      if (x != -1) {
         indVPA[i] = x;
-        VPA[i] = tokenAll.get(i+1).get(indVPA[i]);
+        VPA[i] = tokenAll.get(i + 1).get(indVPA[i]);
       }
     }
-    int[] indSA = new int[lines.length-1];
-    String[] SA = new String[lines.length-1];
-    for (int i=0; i<lines.length-1; i++) {
-      indSA[i] = posAll.get(i+1).indexOf("NNP");
-      SA[i] = tokenAll.get(i+1).get(indSA[i]);
+    int[] indSA = new int[lines.length - 1];
+    String[] SA = new String[lines.length - 1];
+    for (int i = 0; i < lines.length - 1; i++) {
+      indSA[i] = posAll.get(i + 1).indexOf("NNP");
+      SA[i] = tokenAll.get(i + 1).get(indSA[i]);
     }
-    int[] indOA = new int[lines.length-1];
-    String[] OA = new String[lines.length-1];
-    for (int i=0; i<lines.length-1; i++) {
-      indOA[i] = posAll.get(i+1).lastIndexOf("NNP");
-      OA[i] = tokenAll.get(i+1).get(indOA[i]);
+    int[] indOA = new int[lines.length - 1];
+    String[] OA = new String[lines.length - 1];
+    for (int i = 0; i < lines.length - 1; i++) {
+      indOA[i] = posAll.get(i + 1).lastIndexOf("NNP");
+      OA[i] = tokenAll.get(i + 1).get(indOA[i]);
     }
 
     // for checking synonyms
@@ -157,129 +144,118 @@ public class QnAScoringAnnotator extends JCasAnnotator_ImplBase {
     syn.add("shot");
     syn.add("assassinated");
 
-    //for checking passive voice
+    // for checking passive
     TreeSet<String> auxSet = new TreeSet<String>();
-    String[] aux = {"am","is","are","was","were"};
-    for(String e: aux)
-    {
+    String[] aux = { "am", "is", "are", "was", "were" };
+    for (String e : aux) {
       auxSet.add(e);
     }
-    
-    //for checking negation
+
+    // for checking negation
     TreeSet<String> negSet = new TreeSet<String>();
-    String[] neg = {"does","do","did"};
-    for(String e: neg)
-    {
+    String[] neg = { "does", "do" };
+    for (String e : neg) {
       negSet.add(e);
     }
 
-    //comparing question with each answer
-    int[] scores = new int[lines.length-1];
-    for (int i=0; i<lines.length-1; i++) {
-      //check the verbs
+    // comparing question with each answer
+    int[] scores = new int[lines.length - 1];
+    for (int i = 0; i < lines.length - 1; i++) {
+      // check the verbs
       if (VQ.equals(VA[i])) {
-        scores[i] ++;
-        //check subjects
+        scores[i]++;
+        // check subjects
         if (SQ.equals(SA[i])) {
-          scores[i] ++;
+          scores[i]++;
         }
-        //check objects
+        // check objects
         if (OQ.equals(OA[i])) {
-          scores[i] ++;
+          scores[i]++;
         }
       }
-      //check synonyms
-      else if (syn.contains(VA[i])==true) {
-        scores[i] ++;
+      // check synonyms
+      else if (syn.contains(VA[i]) == true) {
+        scores[i]++;
         if (SQ.equals(SA[i])) {
-          scores[i] ++;
+          scores[i]++;
         }
         if (OQ.equals(OA[i])) {
-          scores[i] ++;
+          scores[i]++;
         }
       }
-      //check passive
-      else if (auxSet.contains(VA[i])==true) {
+      // check passive
+      else if (auxSet.contains(VA[i]) == true) {
         if (VQ.equals(VPA[i])) {
-          scores[i] ++;
+          scores[i]++;
           if (SQ.equals(OA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
           if (OQ.equals(SA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
-        }
-        else if (VQ.substring(0,VQ.length()-1).equals(VPA[i].substring(0,VPA[i].length()-1))) {
-          scores[i] ++;
+        } else if (VQ.substring(0, VQ.length() - 1)
+                .equals(VPA[i].substring(0, VPA[i].length() - 1))) {
+          scores[i]++;
           if (SQ.equals(OA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
           if (OQ.equals(SA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
         }
-        //check passive & synonyms
+        // check passive & synonyms
         else if (syn.contains(VPA[i])) {
-          scores[i] ++;
+          scores[i]++;
           if (SQ.equals(OA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
           if (OQ.equals(SA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
         }
       }
-      //check negation
-      else if (negSet.contains(VA[i])==true) {
-        if (tokenAll.get(i+1).get(indVA[i]+1).equals("n't")) {
+      // check negation
+      else if (negSet.contains(VA[i]) == true) {
+        if (tokenAll.get(i + 1).get(indVA[i] + 1).equals("n't")) {
           if (SQ.equals(SA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
           if (OQ.equals(OA[i])) {
-            scores[i] ++;
+            scores[i]++;
           }
         }
-        //to account for "does love" = "loves"
-        else if (posAll.get(i+1).get(indVA[i]+1).equals("VB")) {
-          if (tokenAll.get(i+1).get(indVA[i]+1).equals(VQ.substring(0,VQ.length()-1))) {
-            scores[i] ++;
+        // to account for "does love" = "loves"
+        else if (posAll.get(i + 1).get(indVA[i] + 1).equals("VB")) {
+          if (tokenAll.get(i + 1).get(indVA[i] + 1).equals(VQ.substring(0, VQ.length() - 1))) {
+            scores[i]++;
             if (SQ.equals(SA[i])) {
-              scores[i] ++;
+              scores[i]++;
             }
             if (OQ.equals(OA[i])) {
-              scores[i] ++;
+              scores[i]++;
             }
           }
         }
       }
     }
-    
-    
-    /**
-     * Computing scores: 
-     *      Each sentence gets one point for getting each of the Subject, Verb, Object correct
-     *      and then the obtained score is divided to the total number of tokens of the question sentence (excluding punctuations).
-     */
+    System.out.println(Arrays.toString(scores));
     double[] scoresF = new double[scores.length];
-    for (int i=0; i<scores.length; i++) {
-      scoresF[i] = (double) (scores[i] / (tokenAll.get(0).size()-1)); 
+    for (int i = 0; i < scores.length; i++) {
+      scoresF[i] = (double) scores[i] / ((double) tokenAll.get(0).size() - 1);
     }
-    
-    
-    /**
-     * Computing precision: # of correct sentences / # sentences the system purports to be correct
-     */
+    System.out.println(Arrays.toString(scoresF));
     double precision = 0.0;
-    int num = 0;
-    int denom = 0;
-    for (int i=0; i<scoresF.length; i++) {
-      if (scoresF[i]==1.0) {
-        denom ++;
-        if (Integer.parseInt(lines[i+1].substring(2,3))==1) {
-          num ++;
+    double num = 0.0;
+    double denom = 0.0;
+    for (int i = 0; i < scoresF.length; i++) {
+      if (scoresF[i] == 1.0) {
+        denom = denom + 1.0;
+        if (Integer.parseInt(lines[i + 1].substring(2, 3)) == 1) {
+          num = num + 1.0;
         }
       }
     }
     precision = num / denom;
+    System.out.println(precision);
   }
 }

@@ -5,10 +5,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.Level;
 
 import java.io.IOException;
 
@@ -39,24 +44,78 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class QuestionAnnotator extends JCasAnnotator_ImplBase {
   
+  private Pattern questionPattern = Pattern.compile("\\b[0-4]\\d-[0-2]\\d\\d\\b");
   /**
    * The question sentence. 
    */
   
   @Override
-  public void process(JCas arg0) throws AnalysisEngineProcessException {
-    // TODO Auto-generated method stub
-    // Get the document text (input)
-    String docText = arg0.getDocumentText();
-
-    // Convert the input into arrays of strings, split by lines.
-    String[] lines = docText.split("/n");
-
-    Question annotation = new Question(arg0);
-    annotation.setBegin(0);
-    annotation.setEnd(lines[0].length());
-    annotation.setCasProcessorId("Quesiton");
-    annotation.setConfidence(1.0);
-    annotation.addToIndexes();
+  public void process(JCas aJCas) throws AnalysisEngineProcessException {
+  
+    //Get the document text (input)
+    String docText = aJCas.getDocumentText();
+    
+    Matcher matcher = questionPattern.matcher(docText);
+    int pos = 0;
+    while (matcher.find(pos)) {
+      // found one - create annotation
+      Question question = new Question(aJCas);
+      question.setBegin(matcher.start());
+      question.setEnd(matcher.end());
+      question.setCasProcessorId("Question");
+      question.setConfidence(1.0);
+      question.addToIndexes();
+      pos = matcher.end();
+    }
+//    // Convert the input into arrays of strings, split by lines.
+//    String[] lines = docText.split("/n");
+//
+//    Question question = new Question(aJCas);
+//    question.setBegin(0);
+//    question.setEnd(lines[0].length());
+//    question.setCasProcessorId("Quesiton");
+//    question.setConfidence(1.0);
+//    question.addToIndexes();
   }
+  
+//private String questionPatternString;
+//
+//public void initialize(UimaContext aContext) throws ResourceInitializationException {
+//     super.initialize(aContext);
+//     // Read configuration parameter values
+//     setQuestionPatternString((String) getContext().getConfigParameterValue("questionPatternString"));
+//}
+//
+//@Override
+//public void process(JCas arg0) throws AnalysisEngineProcessException {
+//  // TODO Auto-generated method stub
+//  // Get the document text (input)
+//  String docText = arg0.getDocumentText();
+//
+//  Pattern questionPattern = Pattern.compile(this.getQuestionPatternString(), Pattern.CASE_INSENSITIVE);
+//  
+//  Matcher matcher = questionPattern.matcher(docText);
+//  if (matcher.find()) {
+//        // Create annotation of type Question
+//         Question question = new Question(arg0);
+//         question.setBegin(matcher.start());
+//         question.setEnd(matcher.end());
+//         question.setConfidence(1.0);
+//         question.setCasProcessorId("Question");
+//         question.addToIndexes();
+//       }
+  
+//  /**
+//  +   * @return the questionPatternString
+//  +   */
+//   public String getQuestionPatternString() {
+//     return questionPatternString;
+//   }
+//  
+//   /**
+//     * @param questionPatternString the questionPatternString to set
+//     */
+//   public void setQuestionPatternString(String questionPatternString) {
+//     this.questionPatternString = questionPatternString;
+//   }
 }

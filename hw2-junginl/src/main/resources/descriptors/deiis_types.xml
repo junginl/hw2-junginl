@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <name>deiis_types</name>
   <description/>
   <version>1.0</version>
@@ -77,6 +79,11 @@
           <rangeTypeName>edu.cmu.deiis.types.Answer</rangeTypeName>
         </featureDescription>
       </features>
+    </typeDescription>
+  <typeDescription>
+      <name>edu.cmu.deiis.types.Evaluation</name>
+      <description/>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
     </typeDescription>
   </types>
 </typeSystemDescription>

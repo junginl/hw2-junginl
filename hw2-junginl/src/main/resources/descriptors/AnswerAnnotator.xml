@@ -2,7 +2,8 @@
 
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
-  <primitive>true</primitive>  <annotatorImplementationName>edu.cmu.lti.hw2.annotators.AnswerAnnotator</annotatorImplementationName>
+  <primitive>true</primitive>  
+  <annotatorImplementationName>edu.cmu.lti.hw2.annotators.AnswerAnnotator</annotatorImplementationName>
   <analysisEngineMetaData>
     <name>Answer Annotator</name>
     <description/>
@@ -15,7 +16,6 @@
         <import name="descriptors.deiis_types"/>
       </imports>
     </typeSystemDescription>
-    <typePriorities/>
     <fsIndexCollection/>
     <capabilities>
       <capability>
